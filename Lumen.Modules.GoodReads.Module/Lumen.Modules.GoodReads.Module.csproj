@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<FileVersion>1.0.0</FileVersion>
+		<Version>1.0.0</Version>
+		<UserSecretsId>12b396a4-a415-424f-99fe-819d74368c2b</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Lumen.Modules.Sdk" Version="0.5.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Lumen.Modules.GoodReads.Common\Lumen.Modules.GoodReads.Common.csproj" />
+		<ProjectReference Include="..\Lumen.Modules.GoodReads.Data\Lumen.Modules.GoodReads.Data.csproj" />
+	</ItemGroup>
+</Project>
