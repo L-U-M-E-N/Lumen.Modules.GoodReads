@@ -6,7 +6,7 @@ namespace Lumen.Modules.GoodReads.Data {
     public class GoodReadsContext : DbContext {
         public const string SCHEMA_NAME = "GoodReads";
 
-        public GoodReadsContext(DbContextOptions options) : base(options) {
+        public GoodReadsContext(DbContextOptions<GoodReadsContext> options) : base(options) {
         }
 
         public DbSet<GoodReadsItem> GoodReadsItems { get; set; } = null!;
