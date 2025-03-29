@@ -58,7 +58,7 @@ namespace Lumen.Modules.GoodReads.Module {
 
                 items.Add(new GoodReadsItem {
                     BookName = bookName,
-                    Date = item.PublishDate.ToUniversalTime().DateTime,
+                    Date = item.PublishDate.ToUniversalTime().UtcDateTime,
                     Percentage = percentage,
                     PagesRead = 0,
                     ProgressText = percentageStr + "%",
