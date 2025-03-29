@@ -9,22 +9,13 @@ namespace Lumen.Modules.GoodReads.Data {
         public GoodReadsContext(DbContextOptions options) : base(options) {
         }
 
-        public DbSet<GoodReadsPointInTime> GoodReads { get; set; } = null!;
+        public DbSet<GoodReadsItem> GoodReadsItems { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.HasDefaultSchema(SCHEMA_NAME);
 
-            var GoodReadsModelBuilder = modelBuilder.Entity<GoodReadsPointInTime>();
-            GoodReadsModelBuilder.Property(x => x.Time)
-                .HasColumnType("timestamp with time zone");
-
-            GoodReadsModelBuilder.Property(x => x.AmountVideos)
-                .HasColumnType("integer");
-
-            GoodReadsModelBuilder.Property(x => x.SecondsDuration)
-                .HasColumnType("integer");
-
-            GoodReadsModelBuilder.HasKey(x => x.Time);
+            var GoodReadsModelBuilder = modelBuilder.Entity<GoodReadsItem>();
+            GoodReadsModelBuilder.HasKey(x => x.Date);
         }
     }
 }
