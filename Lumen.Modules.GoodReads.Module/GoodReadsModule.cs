@@ -43,6 +43,7 @@ namespace Lumen.Modules.GoodReads.Module {
 
             List<GoodReadsItem> items = [];
             ExtractPercentageAdvancementProgressFromFeed(feed, items);
+            ExtractFinishedBooksFromFeed(feed, items);
 
             return items;
         }
@@ -62,6 +63,24 @@ namespace Lumen.Modules.GoodReads.Module {
                     Percentage = percentage,
                     PagesRead = null,
                     ProgressText = percentageStr + "%",
+                    BookSize = null,
+                });
+            }
+        }
+
+        private static void ExtractFinishedBooksFromFeed(SyndicationFeed feed, List<GoodReadsItem> items) {
+            var FINISHED_DISCRIMINATOR_STR = " finished reading ";
+            var progressItemsFinished = feed.Items.Where(x => x.Title.Text.Contains(FINISHED_DISCRIMINATOR_STR)).ToList();
+            foreach (var item in progressItemsFinished) {
+                var selectedLine = item.Title.Text.Split('\n').First(line => line.Contains(FINISHED_DISCRIMINATOR_STR));
+                var bookName = selectedLine.Split(FINISHED_DISCRIMINATOR_STR)[1].Replace("'", "").Trim();
+
+                items.Add(new GoodReadsItem {
+                    BookName = bookName,
+                    Date = item.PublishDate.ToUniversalTime().UtcDateTime,
+                    Percentage = 100,
+                    PagesRead = null,
+                    ProgressText = "100%",
                     BookSize = null,
                 });
             }
