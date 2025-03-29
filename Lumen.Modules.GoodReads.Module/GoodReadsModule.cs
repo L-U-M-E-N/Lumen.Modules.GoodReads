@@ -52,17 +52,17 @@ namespace Lumen.Modules.GoodReads.Module {
             var progressItemsPercentage = feed.Items.Where(x => x.Title.Text.Contains(PERCENTAGE_DISCRIMINATOR_STR)).ToList();
             foreach (var item in progressItemsPercentage) {
                 var selectedLine = item.Title.Text.Split('\n').First(line => line.Contains(PERCENTAGE_DISCRIMINATOR_STR));
-                var percentageStr = selectedLine.Split("% done with")[0].Replace("is ", "").Trim();
-                var bookName = selectedLine.Split("% done with")[1].Trim();
+                var percentageStr = selectedLine.Split(PERCENTAGE_DISCRIMINATOR_STR)[0].Replace("is ", "").Trim();
+                var bookName = selectedLine.Split(PERCENTAGE_DISCRIMINATOR_STR)[1].Trim();
                 var percentage = int.Parse(percentageStr);
 
                 items.Add(new GoodReadsItem {
                     BookName = bookName,
                     Date = item.PublishDate.ToUniversalTime().UtcDateTime,
                     Percentage = percentage,
-                    PagesRead = 0,
+                    PagesRead = null,
                     ProgressText = percentageStr + "%",
-                    BookSize = 0,
+                    BookSize = null,
                 });
             }
         }
