@@ -30,20 +30,28 @@ namespace Lumen.Modules.GoodReads.Module {
                 logger.LogTrace($"[{nameof(GoodReadsModule)}] Running tasks ...");
                 var items = ParseAndSaveFeedItems();
                 await SyncDataToDb(items);
+                logger.LogTrace($"[{nameof(GoodReadsModule)}] Running tasks ... Done!");
             } catch (Exception ex) {
                 logger.LogError(ex, $"[{nameof(GoodReadsModule)}] Error when running tasks.");
             }
         }
 
         public IEnumerable<GoodReadsItem> ParseAndSaveFeedItems() {
+            logger.LogInformation($"[{nameof(GoodReadsModule)}] Parsing and saving data from feed ...");
             string url = GetRssUrl();
+            logger.LogInformation($"[{nameof(GoodReadsModule)}] RSS URL: {url}");
             XmlReader reader = XmlReader.Create(url);
             SyndicationFeed feed = SyndicationFeed.Load(reader);
             reader.Close();
 
+            logger.LogInformation($"[{nameof(GoodReadsModule)}] Successfully parsed!");
+
             List<GoodReadsItem> items = [];
             ExtractPercentageAdvancementProgressFromFeed(feed, items);
+            ExtractPageNumberAdvancementProgressFromFeed(feed, items);
             ExtractFinishedBooksFromFeed(feed, items);
+
+            logger.LogInformation($"[{nameof(GoodReadsModule)}] Found {items.Count} items.");
 
             return items;
         }
@@ -63,6 +71,29 @@ namespace Lumen.Modules.GoodReads.Module {
                     Percentage = percentage,
                     PagesRead = null,
                     ProgressText = percentageStr + "%",
+                    BookSize = null,
+                });
+            }
+        }
+
+        private static void ExtractPageNumberAdvancementProgressFromFeed(SyndicationFeed feed, List<GoodReadsItem> items) {
+            var PAGE_DISCRIMINATOR_STR = "is on page ";
+            var progressItemsPercentage = feed.Items.Where(x => x.Title.Text.Contains(PAGE_DISCRIMINATOR_STR)).ToList();
+            foreach (var item in progressItemsPercentage) {
+                var selectedLine = item.Title.Text.Split('\n').First(line => line.Contains(PAGE_DISCRIMINATOR_STR));
+
+                var relevantContent = selectedLine.Split(PAGE_DISCRIMINATOR_STR)[1];
+                var splittedByOf = relevantContent.Split("of");
+
+                var pagesRead = int.Parse(splittedByOf[0].Trim());
+                var bookName = splittedByOf[2].Trim();
+
+                items.Add(new GoodReadsItem {
+                    BookName = bookName,
+                    Date = item.PublishDate.ToUniversalTime().UtcDateTime,
+                    Percentage = null,
+                    PagesRead = pagesRead,
+                    ProgressText = relevantContent,
                     BookSize = null,
                 });
             }
