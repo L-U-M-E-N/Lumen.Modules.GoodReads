@@ -86,7 +86,7 @@ namespace Lumen.Modules.GoodReads.Module {
                 var splittedByOf = relevantContent.Split("of");
 
                 var pagesRead = int.Parse(splittedByOf[0].Trim());
-                var bookName = splittedByOf[2].Trim();
+                var bookName = string.Join("of", splittedByOf[2..]).Trim();
 
                 items.Add(new GoodReadsItem {
                     BookName = bookName,
