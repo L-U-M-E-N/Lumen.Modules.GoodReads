@@ -28,7 +28,7 @@ namespace Lumen.Modules.GoodReads.Module {
         public override async Task RunAsync(LumenModuleRunsOnFlag currentEnv, DateTime date) {
             try {
                 logger.LogTrace($"[{nameof(GoodReadsModule)}] Running tasks ...");
-                var items = ParseAndSaveFeedItems();
+                var items = await ParseAndSaveFeedItems(GetRssUrl(), logger, CancellationToken.None);
                 await SyncDataToDb(items);
                 logger.LogTrace($"[{nameof(GoodReadsModule)}] Running tasks ... Done!");
             } catch (Exception ex) {
@@ -36,11 +36,14 @@ namespace Lumen.Modules.GoodReads.Module {
             }
         }
 
-        public IEnumerable<GoodReadsItem> ParseAndSaveFeedItems() {
+        public static async Task<IEnumerable<GoodReadsItem>> ParseAndSaveFeedItems(string url, ILogger<LumenModuleBase> logger, CancellationToken cancellationToken) {
             logger.LogInformation($"[{nameof(GoodReadsModule)}] Parsing and saving data from feed ...");
-            string url = GetRssUrl();
             logger.LogInformation($"[{nameof(GoodReadsModule)}] RSS URL: {url}");
-            XmlReader reader = XmlReader.Create(url);
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "LUMEN GoodReads module");
+            
+            var res = await httpClient.GetAsync(url, cancellationToken);
+            XmlReader reader = XmlReader.Create(await res.Content.ReadAsStreamAsync(cancellationToken));
             SyndicationFeed feed = SyndicationFeed.Load(reader);
             reader.Close();
 
